@@ -71,15 +71,12 @@ class HTTPClient(object):
         buffer = bytearray()
         done = False
         while not done:
-        
             part = sock.recv(1024)
             if (part):
                 buffer.extend(part)
-                # print(part)
+                
             else:
-                # print(buffer.decode('utf-8'))
                 done = not part
-        # print(buffer.decode('utf-8'))
         return buffer.decode('utf-8')
 
 
@@ -116,29 +113,28 @@ class HTTPClient(object):
  
 
     def GET(self, url, args=None):
-        # 1) get the hostname + port (url_parse)
+        
+        # get the hostname, port and path
         hostname, port, path = self.parse_url(url)
-        # print(hostname)
-        # print(port)
-
+        
+        # format GET request
         request = f"GET {path} HTTP/1.1\r\nHost: {hostname}\r\nAccept: */*\r\nConnection: close\r\n\r\n"
-        # print(request)
+    
 
-        # 2) connect
+        # connect
         self.connect(hostname,port)
         
 
-        # 4) send the request
+        # send the request
         self.sendall(request)
 
-        # 5) recvall the response
+        # recvall the response
         response = self.recvall(self.socket)
-        # response = self.socket.recv(4096).decode('utf-8')
 
-        print(f"-----HERE----  \n {response}")
-
+        # close the connection
         self.close()
 
+        # get the code and the body from the response
         code = self.get_code(response)
         body = self.get_body(response)
 
@@ -147,8 +143,10 @@ class HTTPClient(object):
 
     def POST(self, url, args=None):
 
+        # get hostname port and path from the url
         hostname, port, path = self.parse_url(url)
 
+        # format the request
         request = f"POST {path} HTTP/1.1\r\nHost:{hostname}\r\n"
         request += "Accept: */*\r\n"
 
@@ -164,14 +162,19 @@ class HTTPClient(object):
         request += "Connection: close\r\n\r\n"
         request += args
 
+        # connect 
         self.connect(hostname,port)
 
+        # send the request
         self.sendall(request)
 
+        # recv the response
         response = self.recvall(self.socket)
-        # response = self.socket.recv(4096).decode('utf-8')
+        
+        # close the connection
         self.close()
 
+        # get the code and the body from the response
         code = self.get_code(response)
         body = self.get_body(response)
     
